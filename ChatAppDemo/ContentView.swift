@@ -8,25 +8,37 @@
 import SwiftUI
 
 struct ContentView: View {
-    var messageArray = ["hellp", "how r u ", "i goo"," hthat good   "]
-    
-    
+    @StateObject var messageManager = MessagesManager()
+   
     var body: some View {
         VStack {
-          TitleRow()
-            
-            ScrollView {
-                ForEach( messageArray, id: \.self) { text in
-                    MessageBubble(message: Message(id: "1222", text: text, received: true, timestamp: Date() ))
+            VStack {
+              TitleRow()
+                
+                
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        ForEach( messageManager.messages, id: \.id) { message in
+                            MessageBubble(message: message)
+                        }
+                    }
+                    .padding(.top, 10)
+                    .background(.white)
+                .cornerRadius(30, corners: [.topLeft, .topRight])
+                .onChange(of: messageManager.lastMessagedId) { id in
+                    withAnimation {
+                        proxy.scrollTo(id, anchor: .bottom)
+                    }
+                }
                 }
             }
-            .padding(.top, 10)
-            .background(.white)
-            .cornerRadius(30, corners: [.topLeft, .topRight])
+            .background(Color("Peach"))
+             
+            MessageFIeld()
+                .environmentObject(messageManager)
         }
-        .background(Color("Peach"))
     }
-}
+}   
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
